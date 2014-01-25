@@ -1,0 +1,18 @@
+[Scope]
+DBusName=com.canonical.Unity.Scope.Music.Spotify
+DBusPath=/com/canonical/unity/scope/music/spotify
+Icon=/usr/share/icons/unity-icon-theme/places/svg/service-spotify.svg
+QueryBinary=
+Keywords=spotify;
+RequiredMetadata=
+OptionalMetadata=
+Loader=
+RemoteContent=false
+Type=spotify
+Name=Spotify
+Description=Find artists in the Spotify catalogue
+SearchHint=Search Spotify
+CategoryIcon=/usr/share/icons/unity-icon-theme/places/svg/service-spotify.svg
+
+[Desktop Entry]
+X-Ubuntu-Gettext-Domain=unity-scope-spotify
