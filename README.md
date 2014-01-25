@@ -12,8 +12,8 @@ It could be that the included Makefile needs some changes to be
 adapted to your system. Once these changes are made you can compile
 and install with
 
-`make
-sudo make install`
+`make`
+`sudo make install`
 
 Before installing the scope you can already test the generated
 executable "unity-spotify-scope" by executing it in the code
