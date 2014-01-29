@@ -144,6 +144,9 @@ main(void) {
   UnityScopeDBusConnector *connector = NULL;
   UnityCategorySet *cats = NULL;
   UnityCategory *cat = NULL;
+  UnityFilterSet *filts = NULL;
+  UnityMultiRangeFilter *decade = NULL;
+  UnityRadioOptionFilter *genre = NULL;
   GIcon *icon = NULL;
 
   /* Create and set a category for the scope, including an icon */
@@ -154,6 +157,16 @@ main(void) {
   cats = unity_category_set_new();
   unity_category_set_add(cats, cat);
 
+  /* Create and set the filters for the scope */
+  decade = unity_multi_range_filter_new("decade", "Decade",		\
+					g_themed_icon_new(""), TRUE);
+  genre = unity_radio_option_filter_new("genre", "Genre",		\
+					g_themed_icon_new(""), TRUE);
+
+  filts = unity_filter_set_new();
+  unity_filter_set_add(filts, (UnityFilter*) decade);
+  unity_filter_set_add(filts, (UnityFilter*) genre);
+
   /* Create and set up the scope */
   scope = unity_simple_scope_new();
   unity_simple_scope_set_group_name(scope, GROUP_NAME);
@@ -161,10 +174,14 @@ main(void) {
   unity_simple_scope_set_search_func(scope, search_func, NULL, NULL);
   unity_simple_scope_set_preview_func(scope, preview_func, NULL, NULL);
   unity_simple_scope_set_category_set(scope, cats);
+  unity_simple_scope_set_filter_set(scope, filts);
 
   g_object_unref (icon);
   unity_object_unref (cat);
   unity_object_unref (cats);
+  unity_object_unref (decade);
+  unity_object_unref (genre);
+  unity_object_unref (filts);
 
   /*
    * Setting up the connector is an action that will not be required
