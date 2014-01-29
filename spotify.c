@@ -174,7 +174,7 @@ main(void) {
   unity_simple_scope_set_search_func(scope, search_func, NULL, NULL);
   unity_simple_scope_set_preview_func(scope, preview_func, NULL, NULL);
   unity_simple_scope_set_category_set(scope, cats);
-  unity_simple_scope_set_filter_set(scope, filts);
+  //unity_simple_scope_set_filter_set(scope, filts);
 
   g_object_unref (icon);
   unity_object_unref (cat);
