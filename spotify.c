@@ -36,6 +36,45 @@ search_func(UnityScopeSearchBase* search, void* user_data)
   /* Fetch the results from the backend */
   results = get_results(search->search_context->search_query);
 
+  /* UnityMultiRangeFilter* decade = \ */
+  /*   unity_multi_range_filter_new("decade", "Decade", g_themed_icon_new(""), TRUE); */
+
+  /* UnityRadioOptionFilter*  genre = \ */
+  /*   unity_radio_option_filter_new("genre", "Genre", g_themed_icon_new(""), TRUE); */
+
+  /* if (search->search_context->filter_state){ */
+  /*   decade = (UnityMultiRangeFilter*) \ */
+  /*     unity_filter_set_get_filter_by_id(search->search_context->filter_state, \ */
+  /* 					"decade"); */
+  /*   genre = (UnityRadioOptionFilter*) \ */
+  /*     unity_filter_set_get_filter_by_id(search->search_context->filter_state, \ */
+  /* 					"genre"); */
+  /* } */
+
+  /* if (decade){ */
+  /*   UnityFilterOption* startyear = unity_multi_range_filter_get_first_active(decade); */
+  /*   UnityFilterOption* endyear = unity_multi_range_filter_get_last_active(decade); */
+    
+  /*   if (startyear && endyear){ */
+  /*     gint int_startyear = \ */
+  /* 	g_ascii_strtoull(unity_filter_option_get_id(startyear), NULL, 0); */
+  /*     gint int_endyear = \ */
+  /* 	g_ascii_strtoull(unity_filter_option_get_id(endyear), NULL, 0); */
+  /*     if (int_endyear == 0) */
+  /* 	int_endyear = 1950; */
+  /*     int_endyear += 9; */
+  /*     g_print("%d - %d\n", int_startyear, int_endyear); */
+  /*   }  */
+  /*   else{ */
+  /*     gint int_startyear = 0; */
+  /*     gint int_endyear = 3000; */
+  /*     g_print("%d - %d\n", int_startyear, int_endyear); */
+  /*   } */
+  /* } */
+
+  /* if (genre){} */
+
+
   /* Iterate through the returned results and add them to the
    * Unity's result set
    */
@@ -101,8 +140,7 @@ preview_func(UnityResultPreviewer *previewer, void *user_data)
   user_data = user_data;
 
   /* Create a generic preview */
-  preview = UNITY_PREVIEW(unity_generic_preview_new(
-						    previewer->result.title,
+  preview = UNITY_PREVIEW(unity_generic_preview_new(previewer->result.title,
 						    previewer->result.comment,
 						    g_icon_new_for_string(previewer->result.icon_hint, NULL)));
 
