@@ -12,6 +12,9 @@
 #include <unity.h>
 #include "config.h"
 #include "spotify-parser.h"
+#include <time.h>
+#include <sys/time.h>
+#include "spotify.h"
 
 /**
  * In this function the results from the backend are obtained and
@@ -30,91 +33,98 @@ search_func(UnityScopeSearchBase* search, void* user_data)
   result_t *result = NULL;
   UnityScopeResult scope_result = { 0, };
 
-  /* Avoid compiler warning if we're not using the parameter */
-  user_data = user_data;
+  clock_gettime(CLOCK_MONOTONIC,  &new);
+  interval = (new.tv_sec - old.tv_sec) + (double) (new.tv_nsec - old.tv_nsec)*1e-9;
+  g_print("%f\n", interval);
+  old = new;
 
-  /* Fetch the results from the backend */
-  results = get_results(search->search_context->search_query);
+  if ( interval > 1){
+    /* Avoid compiler warning if we're not using the parameter */
+    user_data = user_data;
 
-  /* UnityMultiRangeFilter* decade = \ */
-  /*   unity_multi_range_filter_new("decade", "Decade", g_themed_icon_new(""), TRUE); */
+    /* Fetch the results from the backend */
+    results = get_results(search->search_context->search_query);
 
-  /* UnityRadioOptionFilter*  genre = \ */
-  /*   unity_radio_option_filter_new("genre", "Genre", g_themed_icon_new(""), TRUE); */
+    /* UnityMultiRangeFilter* decade = \ */
+    /*   unity_multi_range_filter_new("decade", "Decade", g_themed_icon_new(""), TRUE); */
 
-  /* if (search->search_context->filter_state){ */
-  /*   decade = (UnityMultiRangeFilter*) \ */
-  /*     unity_filter_set_get_filter_by_id(search->search_context->filter_state, \ */
-  /* 					"decade"); */
-  /*   genre = (UnityRadioOptionFilter*) \ */
-  /*     unity_filter_set_get_filter_by_id(search->search_context->filter_state, \ */
-  /* 					"genre"); */
-  /* } */
+    /* UnityRadioOptionFilter*  genre = \ */
+    /*   unity_radio_option_filter_new("genre", "Genre", g_themed_icon_new(""), TRUE); */
 
-  /* if (decade){ */
-  /*   UnityFilterOption* startyear = unity_multi_range_filter_get_first_active(decade); */
-  /*   UnityFilterOption* endyear = unity_multi_range_filter_get_last_active(decade); */
+    /* if (search->search_context->filter_state){ */
+    /*   decade = (UnityMultiRangeFilter*) \ */
+    /*     unity_filter_set_get_filter_by_id(search->search_context->filter_state, \ */
+    /* 					"decade"); */
+    /*   genre = (UnityRadioOptionFilter*) \ */
+    /*     unity_filter_set_get_filter_by_id(search->search_context->filter_state, \ */
+    /* 					"genre"); */
+    /* } */
+
+    /* if (decade){ */
+    /*   UnityFilterOption* startyear = unity_multi_range_filter_get_first_active(decade); */
+    /*   UnityFilterOption* endyear = unity_multi_range_filter_get_last_active(decade); */
     
-  /*   if (startyear && endyear){ */
-  /*     gint int_startyear = \ */
-  /* 	g_ascii_strtoull(unity_filter_option_get_id(startyear), NULL, 0); */
-  /*     gint int_endyear = \ */
-  /* 	g_ascii_strtoull(unity_filter_option_get_id(endyear), NULL, 0); */
-  /*     if (int_endyear == 0) */
-  /* 	int_endyear = 1950; */
-  /*     int_endyear += 9; */
-  /*     g_print("%d - %d\n", int_startyear, int_endyear); */
-  /*   }  */
-  /*   else{ */
-  /*     gint int_startyear = 0; */
-  /*     gint int_endyear = 3000; */
-  /*     g_print("%d - %d\n", int_startyear, int_endyear); */
-  /*   } */
-  /* } */
+    /*   if (startyear && endyear){ */
+    /*     gint int_startyear = \ */
+    /* 	g_ascii_strtoull(unity_filter_option_get_id(startyear), NULL, 0); */
+    /*     gint int_endyear = \ */
+    /* 	g_ascii_strtoull(unity_filter_option_get_id(endyear), NULL, 0); */
+    /*     if (int_endyear == 0) */
+    /* 	int_endyear = 1950; */
+    /*     int_endyear += 9; */
+    /*     g_print("%d - %d\n", int_startyear, int_endyear); */
+    /*   }  */
+    /*   else{ */
+    /*     gint int_startyear = 0; */
+    /*     gint int_endyear = 3000; */
+    /*     g_print("%d - %d\n", int_startyear, int_endyear); */
+    /*   } */
+    /* } */
 
-  /* if (genre){} */
+    /* if (genre){} */
 
 
-  /* Iterate through the returned results and add them to the
-   * Unity's result set
-   */
-  for (iter = results; iter; iter = iter->next) {
+    /* Iterate through the returned results and add them to the
+     * Unity's result set
+     */
+    for (iter = results; iter; iter = iter->next) {
 
-    /* Get the result */
-    result = iter->data;
+      /* Get the result */
+      result = iter->data;
 
-    /* Build and populate a scope result from the source data */
-    scope_result.title = result->title;
-    scope_result.uri = result->link;
-    scope_result.icon_hint = result->icon_url;
-    scope_result.category = 0;
-    scope_result.result_type = UNITY_RESULT_TYPE_DEFAULT;
-    scope_result.mimetype = "text/html";
-    scope_result.mimetype = "x-scheme-handler/spotify";
-    scope_result.comment = "Open the artist page in the Spotify client";
-    scope_result.dnd_uri = result->link;
+      /* Build and populate a scope result from the source data */
+      scope_result.title = result->title;
+      scope_result.uri = result->link;
+      scope_result.icon_hint = result->icon_url;
+      scope_result.category = 0;
+      scope_result.result_type = UNITY_RESULT_TYPE_DEFAULT;
+      scope_result.mimetype = "text/html";
+      scope_result.mimetype = "x-scheme-handler/spotify";
+      scope_result.comment = "Open the artist page in the Spotify client";
+      scope_result.dnd_uri = result->link;
 
-    /* Insert the metadata, if available */
-    metadata = g_hash_table_new(g_str_hash, g_str_equal);
+      /* Insert the metadata, if available */
+      metadata = g_hash_table_new(g_str_hash, g_str_equal);
 
-    if (result->popularity) {
-      g_hash_table_insert(metadata, "popularity",
-    			  g_variant_new_string(result->popularity));
+      if (result->popularity) {
+	g_hash_table_insert(metadata, "popularity",
+			    g_variant_new_string(result->popularity));
+      }
+
+      scope_result.metadata = metadata;
+
+      /* Add the returned result to the search results list, taking a */
+      /* copy of the data passed in via scope_result */
+      unity_result_set_add_result(search->search_context->result_set,
+				  &scope_result);
+      g_hash_table_unref(metadata);
     }
 
-    scope_result.metadata = metadata;
-
-    /* Add the returned result to the search results list, taking a */
-    /* copy of the data passed in via scope_result */
-    unity_result_set_add_result(search->search_context->result_set,
-				&scope_result);
-    g_hash_table_unref(metadata);
+    /*
+     * Clear out the data copied to the result set earlier on
+     */
+    g_slist_free_full(results, (GDestroyNotify) result_cleanup);
   }
-
-  /*
-   * Clear out the data copied to the result set earlier on
-   */
-  g_slist_free_full(results, (GDestroyNotify) result_cleanup);
 }
 
 /**
@@ -186,6 +196,8 @@ main(void) {
   UnityMultiRangeFilter *decade = NULL;
   UnityRadioOptionFilter *genre = NULL;
   GIcon *icon = NULL;
+
+  clock_gettime(CLOCK_MONOTONIC,  &old);
 
   /* Create and set a category for the scope, including an icon */
   icon = g_themed_icon_new(CATEGORY_ICON_PATH);
