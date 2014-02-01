@@ -14,6 +14,7 @@
  * http://stackoverflow.com/questions/16081068/spotify-metadata-api-search-by-artist
  */
 #define ARTIST_BASE_URI "http://ws.spotify.com/search/1/artist.json?q=artist:"
+#define ARTIST_LOOKUP_URI "http://ws.spotify.com/lookup/1/.json?uri=&extras=album"
 #define ARTIST_ICON_BASE_URI  "https://embed.spotify.com/oembed/?url="
 
 
@@ -36,7 +37,9 @@ void result_cleanup(gpointer data) {
   if (result->popularity) {
     free(result->popularity);
   }
-
+  if (result->n_of_albums) {
+    free(result->n_of_albums);
+  }
 }
 
 
@@ -118,6 +121,58 @@ char * get_spotify_thumbnail(const char *spotify_uri){
 
 
 /**
+ * @brief get_spotify_artist_albums Get the number of artist albums on Spotify
+ * @param spotify_uri Spotify uri for the artist
+ * @return Number of number of artist albums on Spotify
+ */
+guint get_spotify_artist_albums(const gchar *spotify_uri){
+  GString *url = g_string_new(ARTIST_LOOKUP_URI);
+  url = g_string_insert(url, 41, spotify_uri);
+
+  GError *error = NULL;
+  JsonParser *parser = json_parser_new(); 
+  GFile * file = g_file_new_for_uri(url->str);
+
+  g_print("Opening %s for reading\n", url->str);
+  GInputStream * fis = (GInputStream*)g_file_read (file, NULL, &error);
+  g_print("Opened!\n");
+  if (error != NULL){
+    g_error ("** ERROR **: %s (domain: %s, code: %d) at %d (in get_spotify_thumbnail)\n",\
+	     error->message, g_quark_to_string (error->domain), error->code, \
+	     __LINE__);
+    g_object_unref(file);
+    g_string_free(url, TRUE);
+    g_object_unref (parser);
+    return 0;
+  }
+
+  json_parser_load_from_stream(parser, fis, NULL, &error);
+  if (error){
+    g_print ("Unable to parse `%s': %s\n", url->str, error->message);
+    g_object_unref(file);
+    g_string_free(url, TRUE);
+    g_object_unref (parser);
+    return 0;
+  }
+
+  JsonNode *root = json_parser_get_root(parser);
+  JsonObject * content = json_node_get_object(root);
+  JsonNode * node = json_object_get_member(content, "artist");
+  content = json_node_get_object(node);
+  node = json_object_get_member(content, "albums");
+  JsonArray * AlbumsArray = json_node_get_array(node);
+  guint AlbumsArrayLength = json_array_get_length(AlbumsArray);
+  g_print("%s\n", url->str);
+  g_print("%d\n", AlbumsArrayLength);
+
+  g_object_unref(fis);
+  g_string_free(url, TRUE);
+  g_object_unref(parser);
+  return AlbumsArrayLength;
+}
+
+
+/**
  * @brief get_results Get and parse the results from a search query
  * @param search_term String submitted as the search term
  * @return Search results
@@ -182,6 +237,9 @@ GSList * get_results(char *search_term){
     const gchar * spotify_uri = json_object_get_string_member(artistNodeContent, "href");
     const gchar * popularity = json_object_get_string_member(artistNodeContent, "popularity");
 
+    const gchar * n_of_albums = \
+      g_strdup_printf("%i", get_spotify_artist_albums(spotify_uri) );
+
     result = (result_t*)malloc(sizeof(result_t));
     bzero((result_t*)result, sizeof(result_t));
 
@@ -209,6 +267,9 @@ GSList * get_results(char *search_term){
 
     result->popularity = (char *)malloc(strlen(popularity)+1);
     strcpy(result->popularity, popularity);
+
+    result->n_of_albums = (char *)malloc(strlen(n_of_albums)+1);
+    strcpy(result->n_of_albums, n_of_albums);
 
     results = g_slist_append(results, result);
   }

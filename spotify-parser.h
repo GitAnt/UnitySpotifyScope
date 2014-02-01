@@ -16,6 +16,7 @@ typedef struct {
   gchar *title;
   gchar *icon_url;
   gchar *popularity;
+  gchar *n_of_albums;
 } result_t;
 
 #endif /* __SPOTIFY_PARSER_H__ */

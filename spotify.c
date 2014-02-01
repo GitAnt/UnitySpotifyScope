@@ -126,6 +126,11 @@ search_func(UnityScopeSearchBase* search, void* user_data)
 			  g_variant_new_string(result->popularity));
     }
 
+    if (result->n_of_albums) {
+      g_hash_table_insert(metadata, "n_of_albums",
+			  g_variant_new_string(result->n_of_albums));
+    }
+
     scope_result.metadata = metadata;
 
     /* Add the returned result to the search results list, taking a */
@@ -157,8 +162,11 @@ preview_func(UnityResultPreviewer *previewer, void *user_data)
 {
   UnityPreview *preview = NULL;
   UnityPreviewAction *action = NULL;
+
   UnityInfoHint *popularity_hint = NULL;
   GVariant *gv_popularity = NULL;
+  UnityInfoHint *n_of_albums_hint = NULL;
+  GVariant *gv_n_of_albums = NULL;
 
   /* Avoid compiler warning if we're not using the parameter */
   user_data = user_data;
@@ -176,6 +184,7 @@ preview_func(UnityResultPreviewer *previewer, void *user_data)
   /* If the result contains metadata, add it to the preview */
   if (previewer->result.metadata) {
     gv_popularity = g_hash_table_lookup(previewer->result.metadata, "popularity");
+    gv_n_of_albums = g_hash_table_lookup(previewer->result.metadata, "n_of_albums");
 
     /* There are 2 ways to do this, the first method just directly
      * uses the GVariant from the hash. The second extracts the string
@@ -190,6 +199,15 @@ preview_func(UnityResultPreviewer *previewer, void *user_data)
       g_object_ref(popularity_hint);
       unity_preview_add_info(preview, popularity_hint);
       g_object_unref(popularity_hint);
+    }
+
+    if (gv_n_of_albums) {
+      n_of_albums_hint = unity_info_hint_new_with_variant("n_of_albums", 
+							  "Albums on Spotify",
+							  NULL, gv_n_of_albums);
+      g_object_ref(n_of_albums_hint);
+      unity_preview_add_info(preview, n_of_albums_hint);
+      g_object_unref(n_of_albums_hint);
     }
   }
 
