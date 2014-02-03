@@ -140,11 +140,11 @@ search_func(UnityScopeSearchBase* search, void* user_data)
 				  &scope_result);
       g_hash_table_unref(metadata);
     }
+    /*
+     * Clear out the data copied to the result set earlier on
+     */
+    g_slist_free_full(results, (GDestroyNotify) result_cleanup);
   }
-  /*
-   * Clear out the data copied to the result set earlier on
-   */
-  g_slist_free_full(results, (GDestroyNotify) result_cleanup);
 }
 
 /**

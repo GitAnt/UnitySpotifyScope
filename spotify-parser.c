@@ -88,8 +88,8 @@ char * get_spotify_thumbnail(const char *spotify_uri){
   g_print("Opening %s for reading\n", url->str);
   GInputStream * fis = (GInputStream*)g_file_read (file, NULL, &error);
   g_print("Opened!\n");
-  if (error != NULL){
-    g_error ("** ERROR **: %s (domain: %s, code: %d) at %d (in get_spotify_thumbnail)\n",\
+  if (error){
+    g_debug("** ERROR **: %s (domain: %s, code: %d) at %d (in get_spotify_thumbnail)\n",\
 	     error->message, g_quark_to_string (error->domain), error->code, \
 	     __LINE__);
     g_object_unref(file);
@@ -100,7 +100,7 @@ char * get_spotify_thumbnail(const char *spotify_uri){
 
   json_parser_load_from_stream(parser, fis, NULL, &error);
   if (error){
-    g_print ("Unable to parse `%s': %s\n", url->str, error->message);
+    g_debug("Unable to parse `%s': %s\n", url->str, error->message);
     g_object_unref(file);
     g_string_free(url, TRUE);
     g_object_unref (parser);
@@ -145,8 +145,9 @@ guint get_spotify_artist_albums(const gchar *spotify_uri){
   g_print("Opening %s for reading\n", url->str);
   GInputStream * fis = (GInputStream*)g_file_read (file, NULL, &error);
   g_print("Opened!\n");
-  if (error != NULL){
-    g_error ("** ERROR **: %s (domain: %s, code: %d) at %d (in get_spotify_thumbnail)\n",\
+
+  if (error){
+    g_debug("** ERROR **: %s (domain: %s, code: %d) at %d (in get_spotify_artist_albums)\n",\
 	     error->message, g_quark_to_string (error->domain), error->code, \
 	     __LINE__);
     g_object_unref(file);
@@ -157,9 +158,9 @@ guint get_spotify_artist_albums(const gchar *spotify_uri){
 
   json_parser_load_from_stream(parser, fis, NULL, &error);
   if (error){
-    g_print ("Unable to parse `%s': %s\n", url->str, error->message);
+    g_debug("Unable to parse `%s': %s\n", url->str, error->message);
     g_object_unref(file);
-    g_string_free(url, TRUE);
+    g_string_free(url,TRUE);
     g_object_unref (parser);
     return 0;
   }
@@ -211,8 +212,8 @@ GSList * get_results(char *search_term){
   GInputStream * fis = (GInputStream*) g_file_read(file, NULL, &error);
   g_print("done!\n");
 
-  if (error != NULL){
-    g_error("** ERROR **: %s (domain: %s, code: %d) at %d (in get_results) \n",\
+  if (error){
+    g_debug("** ERROR **: %s (domain: %s, code: %d) at %d (in get_results) \n",\
 	    error->message, g_quark_to_string (error->domain), error->code, \
 	    __LINE__);
     g_object_unref (file);
@@ -223,7 +224,7 @@ GSList * get_results(char *search_term){
 
   json_parser_load_from_stream(parser, fis, NULL, &error);
   if (error){
-    g_error("Unable to parse `%s': %s\n", url->str, error->message);
+    g_debug("Unable to parse `%s': %s\n", url->str, error->message);
     g_object_unref (file);
     g_string_free(url, TRUE);
     g_object_unref (parser);
