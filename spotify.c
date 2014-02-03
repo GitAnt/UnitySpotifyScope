@@ -51,8 +51,8 @@ search_func(UnityScopeSearchBase* search, void* user_data)
   g_print("%f\n", interval);
   old = new;
 
-  if ( interval < 3 ){
-    delay( ( 3-interval )*1000 );
+  if ( interval < TYPING_TIMEOUT ){
+    delay( ( TYPING_TIMEOUT - interval )*1000 );
   }
   /* Avoid compiler warning if we're not using the parameter */
   user_data = user_data;
