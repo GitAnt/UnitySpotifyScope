@@ -111,7 +111,16 @@ char * get_spotify_thumbnail(const char *spotify_uri){
   JsonObject * content = json_node_get_object(root);
   const gchar * thumbnail_url = json_object_get_string_member(content, "thumbnail_url");
   gchar * pointer = (gchar *) malloc( strlen(thumbnail_url) + 1 );
-  strcpy(pointer, thumbnail_url);
+  char ** tokens = g_strsplit(thumbnail_url, "cover", 0);
+  if ( *(tokens + 1) ){
+    gchar * new_thumbnail_url = g_strconcat(*tokens, "640", *(tokens+1), '\0', NULL);
+    g_strfreev(tokens);
+    strcpy(pointer, new_thumbnail_url);
+    g_free(new_thumbnail_url);
+  }
+  else{
+    strcpy(pointer, thumbnail_url);
+  }
 
   g_object_unref(fis);
   g_string_free(url, TRUE);
@@ -199,7 +208,7 @@ GSList * get_results(char *search_term){
   GFile * file = g_file_new_for_uri(url->str);
 
   g_print("\nReading %s from file pointer...", url->str);
-  GInputStream * fis = (GInputStream*)g_file_read (file, NULL, &error);
+  GInputStream * fis = (GInputStream*) g_file_read(file, NULL, &error);
   g_print("done!\n");
 
   if (error != NULL){
