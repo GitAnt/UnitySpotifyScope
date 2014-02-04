@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <json-glib/json-glib.h>
+#include <unity.h>
 #include "spotify-parser.h"
 
 
@@ -25,21 +26,16 @@
  */
 void result_cleanup(gpointer data) {
   result_t *result = (result_t *)data;
-  if (result->link) {
+  if (result->link)
     free(result->link);
-  }
-  if (result->icon_url) {
+  if (result->icon_url)
     free(result->icon_url);
-  }
-  if (result->title) {
+  if (result->title)
     free(result->title);
-  }
-  if (result->popularity) {
+  if (result->popularity)
     free(result->popularity);
-  }
-  if (result->n_of_albums) {
+  if (result->n_of_albums)
     free(result->n_of_albums);
-  }
 }
 
 
@@ -187,7 +183,7 @@ guint get_spotify_artist_albums(const gchar *spotify_uri){
  * @param search_term String submitted as the search term
  * @return Search results
  */
-GSList * get_results(char *search_term){
+GSList * get_results(char *search_term, UnityCancellable* cancellable){
   GString *url = NULL;
   GSList *results = NULL;
   result_t *result = NULL;
@@ -205,11 +201,12 @@ GSList * get_results(char *search_term){
   g_string_append(url, search_term);
 
   GError *error = NULL;
-  JsonParser *parser = json_parser_new(); 
+  JsonParser *parser = json_parser_new();
   GFile * file = g_file_new_for_uri(url->str);
 
   g_print("\nReading %s from file pointer...", url->str);
-  GInputStream * fis = (GInputStream*) g_file_read(file, NULL, &error);
+  GInputStream * fis = (GInputStream*) \
+    g_file_read(file, unity_cancellable_get_gcancellable(cancellable), &error);
   g_print("done!\n");
 
   if (error){

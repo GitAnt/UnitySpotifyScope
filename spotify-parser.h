@@ -4,7 +4,7 @@
 void result_cleanup(gpointer);
 void trim_string(char *);
 char * get_spotify_thumbnail(const char *);
-GSList *get_results(char *);
+GSList *get_results(char *, UnityCancellable *);
 
 /**
  * This is just an example result type with some sample

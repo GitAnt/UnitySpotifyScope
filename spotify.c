@@ -4,9 +4,6 @@
  * This module implements the interface to the Unity Dash and
  * constitutes the frontend of the scope.
  *
- * Follow the scopes tutorial to learn how to create a scope:
- * http://developer.ubuntu.com/resources/tutorials/unity-scopes/writing-a-unity-scope/
- *
  */
 
 #include <unity.h>
@@ -58,7 +55,8 @@ search_func(UnityScopeSearchBase* search, void* user_data)
   user_data = user_data;
 
   /* Fetch the results from the backend */
-  results = get_results(search->search_context->search_query);
+  results = get_results(search->search_context->search_query,\
+			search->search_context->cancellable);
 
   /* UnityMultiRangeFilter* decade = \ */
   /*   unity_multi_range_filter_new("decade", "Decade", g_themed_icon_new(""), TRUE); */
@@ -230,7 +228,7 @@ main(void) {
   UnityRadioOptionFilter *genre = NULL;
   GIcon *icon = NULL;
 
-  clock_gettime(CLOCK_MONOTONIC,  &old);
+  clock_gettime(CLOCK_MONOTONIC, &old);
 
   /* Create and set a category for the scope, including an icon */
   icon = g_themed_icon_new(CATEGORY_ICON_PATH);
@@ -259,12 +257,12 @@ main(void) {
   unity_simple_scope_set_category_set(scope, cats);
   //unity_simple_scope_set_filter_set(scope, filts);
 
-  g_object_unref (icon);
-  unity_object_unref (cat);
-  unity_object_unref (cats);
-  unity_object_unref (decade);
-  unity_object_unref (genre);
-  unity_object_unref (filts);
+  g_object_unref(icon);
+  unity_object_unref(cat);
+  unity_object_unref(cats);
+  unity_object_unref(decade);
+  unity_object_unref(genre);
+  unity_object_unref(filts);
 
   /*
    * Setting up the connector is an action that will not be required
