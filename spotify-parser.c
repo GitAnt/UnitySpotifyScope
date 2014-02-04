@@ -248,8 +248,7 @@ GSList * get_results(char *search_term, UnityCancellable* cancellable){
     const gchar * popularity = \
       json_object_get_string_member(artistNodeContent, "popularity");
 
-    const gchar * n_of_albums = \
-      g_strdup_printf("%i", get_spotify_artist_albums(spotify_uri) );
+    gchar * n_of_albums = g_strdup_printf("%i", get_spotify_artist_albums(spotify_uri) );
 
     result = (result_t*)malloc(sizeof(result_t));
     bzero((result_t*)result, sizeof(result_t));
@@ -282,6 +281,7 @@ GSList * get_results(char *search_term, UnityCancellable* cancellable){
 
     result->n_of_albums = (char *)malloc(strlen(n_of_albums)+1);
     strcpy(result->n_of_albums, n_of_albums);
+    g_free(n_of_albums);
 
     results = g_slist_append(results, result);
   }
