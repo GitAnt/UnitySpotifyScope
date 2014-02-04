@@ -182,8 +182,10 @@ preview_func(UnityResultPreviewer *previewer, void *user_data)
 
   /* If the result contains metadata, add it to the preview */
   if (previewer->result.metadata) {
-    gv_popularity = g_hash_table_lookup(previewer->result.metadata, "popularity");
-    gv_n_of_albums = g_hash_table_lookup(previewer->result.metadata, "n_of_albums");
+    gv_popularity = g_hash_table_lookup(previewer->result.metadata, \
+					"popularity");
+    gv_n_of_albums = g_hash_table_lookup(previewer->result.metadata, \
+					 "n_of_albums");
 
     /* There are 2 ways to do this, the first method just directly
      * uses the GVariant from the hash. The second extracts the string

@@ -105,11 +105,13 @@ char * get_spotify_thumbnail(const char *spotify_uri){
 
   JsonNode *root = json_parser_get_root(parser);
   JsonObject * content = json_node_get_object(root);
-  const gchar * thumbnail_url = json_object_get_string_member(content, "thumbnail_url");
+  const gchar * thumbnail_url = \
+    json_object_get_string_member(content, "thumbnail_url");
   gchar * pointer = (gchar *) malloc( strlen(thumbnail_url) + 1 );
   char ** tokens = g_strsplit(thumbnail_url, "cover", 0);
   if ( *(tokens + 1) ){
-    gchar * new_thumbnail_url = g_strconcat(*tokens, "640", *(tokens+1), '\0', NULL);
+    gchar * new_thumbnail_url = g_strconcat(*tokens, "640", \
+					    *(tokens+1), '\0', NULL);
     g_strfreev(tokens);
     strcpy(pointer, new_thumbnail_url);
     g_free(new_thumbnail_url);
@@ -143,7 +145,7 @@ guint get_spotify_artist_albums(const gchar *spotify_uri){
   g_print("Opened!\n");
 
   if (error){
-    g_debug("** ERROR **: %s (domain: %s, code: %d) at %d (in get_spotify_artist_albums)\n",\
+    g_debug("** ERROR **: %s (domain: %s, code: %d) at %d (in get_spotify_artist_albums)\n", \
 	     error->message, g_quark_to_string (error->domain), error->code, \
 	     __LINE__);
     g_object_unref(file);
@@ -241,8 +243,10 @@ GSList * get_results(char *search_term, UnityCancellable* cancellable){
     JsonNode * artistNode = json_array_get_element(ArtistsArray, i);
     JsonObject * artistNodeContent = json_node_get_object(artistNode);
     const gchar * title = json_object_get_string_member(artistNodeContent, "name");
-    const gchar * spotify_uri = json_object_get_string_member(artistNodeContent, "href");
-    const gchar * popularity = json_object_get_string_member(artistNodeContent, "popularity");
+    const gchar * spotify_uri = \
+      json_object_get_string_member(artistNodeContent, "href");
+    const gchar * popularity = \
+      json_object_get_string_member(artistNodeContent, "popularity");
 
     const gchar * n_of_albums = \
       g_strdup_printf("%i", get_spotify_artist_albums(spotify_uri) );
@@ -250,7 +254,8 @@ GSList * get_results(char *search_term, UnityCancellable* cancellable){
     result = (result_t*)malloc(sizeof(result_t));
     bzero((result_t*)result, sizeof(result_t));
 
-    gchar * fallback_icon_url = "/usr/share/icons/unity-icon-theme/places/svg/service-spotify.svg";    
+    gchar * fallback_icon_url = \
+      "/usr/share/icons/unity-icon-theme/places/svg/service-spotify.svg";    
     g_print("Fetching thumbnail for %s\n", title);
     gchar * icon_url = get_spotify_thumbnail(spotify_uri);
     if ( icon_url == NULL ) {
