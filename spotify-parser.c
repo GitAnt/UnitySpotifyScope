@@ -2,8 +2,6 @@
  * Json parser backend
  *
  */
-#include <stdlib.h>
-#include <string.h>
 #include <json-glib/json-glib.h>
 #include <unity.h>
 #include "spotify-parser.h"
@@ -82,15 +80,16 @@ char * get_spotify_thumbnail(const char *spotify_uri){
   GFile * file = g_file_new_for_uri(url->str);
 
   g_print("Opening %s for reading\n", url->str);
-  GInputStream * fis = (GInputStream*)g_file_read (file, NULL, &error);
+  GInputStream * fis = (GInputStream* ) g_file_read(file, NULL, &error);
   g_print("Opened!\n");
   if (error){
     g_debug("** ERROR **: %s (domain: %s, code: %d) at %d (in get_spotify_thumbnail)\n",\
 	     error->message, g_quark_to_string (error->domain), error->code, \
 	     __LINE__);
     g_object_unref(file);
-    g_string_free(url, TRUE);
+    g_object_unref(fis);
     g_object_unref (parser);
+    g_string_free(url, TRUE);
     return NULL;
   }
 
@@ -98,8 +97,9 @@ char * get_spotify_thumbnail(const char *spotify_uri){
   if (error){
     g_debug("Unable to parse `%s': %s\n", url->str, error->message);
     g_object_unref(file);
-    g_string_free(url, TRUE);
+    g_object_unref(fis);
     g_object_unref (parser);
+    g_string_free(url, TRUE);
     return NULL;
   }
 
@@ -120,9 +120,10 @@ char * get_spotify_thumbnail(const char *spotify_uri){
     strcpy(pointer, thumbnail_url);
   }
 
+  g_object_unref(file);
   g_object_unref(fis);
-  g_string_free(url, TRUE);
   g_object_unref(parser);
+  g_string_free(url, TRUE);
   return pointer;
 }
 
@@ -149,8 +150,9 @@ guint get_spotify_artist_albums(const gchar *spotify_uri){
 	     error->message, g_quark_to_string (error->domain), error->code, \
 	     __LINE__);
     g_object_unref(file);
-    g_string_free(url, TRUE);
+    g_object_unref(fis);
     g_object_unref (parser);
+    g_string_free(url, TRUE);
     return 0;
   }
 
@@ -158,8 +160,9 @@ guint get_spotify_artist_albums(const gchar *spotify_uri){
   if (error){
     g_debug("Unable to parse `%s': %s\n", url->str, error->message);
     g_object_unref(file);
-    g_string_free(url,TRUE);
+    g_object_unref(fis);
     g_object_unref (parser);
+    g_string_free(url, TRUE);
     return 0;
   }
 
@@ -170,12 +173,11 @@ guint get_spotify_artist_albums(const gchar *spotify_uri){
   node = json_object_get_member(content, "albums");
   JsonArray * AlbumsArray = json_node_get_array(node);
   guint AlbumsArrayLength = json_array_get_length(AlbumsArray);
-  g_print("%s\n", url->str);
-  g_print("%d\n", AlbumsArrayLength);
 
+  g_object_unref(file);
   g_object_unref(fis);
+  g_object_unref (parser);
   g_string_free(url, TRUE);
-  g_object_unref(parser);
   return AlbumsArrayLength;
 }
 
@@ -191,12 +193,13 @@ GSList * get_results(char *search_term, UnityCancellable* cancellable){
   result_t *result = NULL;
 
   trim_string(search_term);
-  g_print("The search term after trimming is: '%s'", search_term);
-  /* Check if an actual search term was submitted, return otherwise */
+  /* Check if a proper search term was submitted, return otherwise */
   if ( search_term == NULL || search_term[0] == '\0' || strlen(search_term) < 3 ) {
     g_warning("get_results: search_term null or too short\n");
     return results;
   }
+
+  g_warning("Starting search for %s\n", search_term);
 
   /* Construct the full search query */
   url = g_string_new(ARTIST_BASE_URI);
@@ -215,18 +218,21 @@ GSList * get_results(char *search_term, UnityCancellable* cancellable){
     g_debug("** ERROR **: %s (domain: %s, code: %d) at %d (in get_results) \n",\
 	    error->message, g_quark_to_string (error->domain), error->code, \
 	    __LINE__);
-    g_object_unref (file);
-    g_string_free(url, TRUE);
+    g_object_unref(file);
+    if (fis)
+      g_object_unref(fis);
     g_object_unref (parser);
+    g_string_free(url, TRUE);
     return results;
   }
 
   json_parser_load_from_stream(parser, fis, NULL, &error);
   if (error){
     g_debug("Unable to parse `%s': %s\n", url->str, error->message);
-    g_object_unref (file);
-    g_string_free(url, TRUE);
+    g_object_unref(file);
+    g_object_unref(fis);
     g_object_unref (parser);
+    g_string_free(url, TRUE);
     return results;
   }
 
@@ -236,10 +242,12 @@ GSList * get_results(char *search_term, UnityCancellable* cancellable){
   JsonNode * ArtistsNode = json_object_get_member(content, "artists");
   JsonArray * ArtistsArray = json_node_get_array(ArtistsNode);
   guint ArtistsArrayLength = json_array_get_length(ArtistsArray);
-  if ( ArtistsArrayLength > 5)
-    ArtistsArrayLength = 5;
+  if ( ArtistsArrayLength > MAX_RESULTS)
+    ArtistsArrayLength = MAX_RESULTS;
   guint i = 0;
   for (i = 0; i < ArtistsArrayLength; i++){
+    if ( g_cancellable_is_cancelled( unity_cancellable_get_gcancellable( cancellable ) ) )
+      break;
     JsonNode * artistNode = json_array_get_element(ArtistsArray, i);
     JsonObject * artistNodeContent = json_node_get_object(artistNode);
     const gchar * title = json_object_get_string_member(artistNodeContent, "name");
@@ -286,8 +294,9 @@ GSList * get_results(char *search_term, UnityCancellable* cancellable){
     results = g_slist_append(results, result);
   }
 
-  g_object_unref (file);
-  g_string_free(url, TRUE);
+  g_object_unref(file);
+  g_object_unref(fis);
   g_object_unref (parser);
+  g_string_free(url, TRUE);
   return results;
 }
